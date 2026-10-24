@@ -1,0 +1,250 @@
+/* custom loading spinner */
+/* #loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 40px 0;
+} */
+
+/* #loading-spinner.show {
+  display: flex;
+} */
+
+/* #loader {
+  width: 128px;
+  height: 128px;
+  border: 5px solid;
+  border-color: var(--ltm_secondary-color) transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+} */
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.profile-pic-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-pic {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #ddd;
+    cursor: pointer;
+}
+
+/* Check-out  */
+.select-address {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+/* =================================== */
+/* THÊM CODE MỚI VÀO BÊN DƯỚI */
+/* =================================== */
+
+/* Định dạng cho link danh mục khi được "active" */
+.widget.ltn__menu-widget ul li a.category-filter.active {
+    color: var(--ltm__secondary-color); /* Đổi màu chữ sang màu cam (màu phụ) */
+    font-weight: bold; /* In đậm chữ */
+    text-decoration: underline;
+}
+
+/* (Tùy chọn) Thêm hiệu ứng mượt mà khi chuyển */
+.widget.ltn__menu-widget ul li a.category-filter {
+    transition: all 0.2s ease-in-out;
+    border-bottom: 2px solid transparent; /* Thêm 1 gạch chân trong suốt để giữ bố cục */
+}
+
+/*=================================== */
+
+/* Fix lỗi ảnh chồng nhau ở trang chi tiết sản phẩm */
+
+/* Ảnh lớn */
+.ltn__shop-details-large-img {
+    overflow: hidden;
+    position: relative;
+}
+
+.ltn__shop-details-large-img .single-large-img {
+    width: 100%;
+    height: auto;
+    position: relative;
+}
+
+.ltn__shop-details-large-img .single-large-img a {
+    display: block;
+    width: 100%;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.ltn__shop-details-large-img .single-large-img a:first-child {
+    position: relative !important;
+    opacity: 1;
+    z-index: 2;
+}
+
+.ltn__shop-details-large-img .single-large-img a img {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+}
+
+/* Ảnh nhỏ (Thumbnail) */
+.ltn__shop-details-small-img {
+    display: flex !important;
+    gap: 10px !important;
+    overflow-x: auto !important;
+    padding: 10px 0 !important;
+    flex-wrap: nowrap !important;
+    margin: 0 !important;
+}
+
+.ltn__shop-details-small-img.slick-slider {
+    width: 100% !important;
+    overflow-x: auto !important;
+}
+
+.ltn__shop-details-small-img .slick-list {
+    display: flex !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.ltn__shop-details-small-img .slick-track {
+    display: flex !important;
+    transform: none !important;
+    width: auto !important;
+    left: 0 !important;
+    top: 0 !important;
+}
+
+.ltn__shop-details-small-img .single-small-img {
+    flex: 0 0 100px !important;
+    width: 100px !important;
+    height: 100px !important;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: border-color 0.2s ease;
+}
+
+.ltn__shop-details-small-img .single-small-img:hover {
+    border-color: var(--ltm_secondary-color);
+}
+
+.ltn__shop-details-small-img .single-small-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+/* Ẩn thanh cuộn xấu xí */
+.ltn__shop-details-small-img::-webkit-scrollbar {
+    height: 5px;
+}
+.ltn__shop-details-small-img::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+}
+
+/* =================================== */
+/* Viền cho ảnh nhỏ khi được chọn */
+.single-small-img.active-img {
+    border: 2px solid var(--ltn__secondary-color) !important; /* Viền màu cam */
+    opacity: 1;
+}
+
+/* Làm mờ các ảnh chưa chọn */
+.single-small-img {
+    opacity: 0.7;
+    transition: all 0.3s;
+}
+.single-small-img:hover {
+    opacity: 1;
+}
+
+/* =================================== */
+
+/* --- FIX LỖI PHÂN TRANG --- */
+
+/* ================================================== */
+/* FIX LỖI PHÂN TRANG (CĂN GIỮA TUYỆT ĐỐI)           */
+/* ================================================== */
+
+.ltn__pagination .pagination {
+    display: flex;
+    justify-content: center; /* Căn toàn bộ thanh phân trang ra giữa màn hình */
+    align-items: center;
+    gap: 5px; /* Khoảng cách giữa các nút */
+}
+
+.ltn__pagination .page-item .page-link {
+    width: 45px; /* Cố định chiều rộng */
+    height: 45px; /* Cố định chiều cao (bằng rộng để thành hình vuông) */
+    display: flex; /* Dùng Flexbox để căn chỉnh nội dung bên trong */
+    justify-content: center; /* Căn giữa ngang (trái/phải) */
+    align-items: center; /* Căn giữa dọc (trên/dưới) - QUAN TRỌNG ĐỂ HẾT LỆCH */
+    padding: 0 !important; /* Bỏ padding để không bị vỡ kích thước */
+    border-radius: 0; /* Nút vuông (nếu thích bo tròn thì sửa thành 50%) */
+    font-size: 16px; /* Cỡ chữ */
+    font-weight: 700; /* Chữ đậm */
+    color: #071c1f; /* Màu chữ mặc định */
+    border: 1px solid #ededed; /* Viền mờ */
+    text-decoration: none; /* Bỏ gạch chân */
+}
+
+/* Trạng thái đang chọn (Active) */
+.ltn__pagination .page-item.active .page-link {
+    background-color: #80b500 !important; /* Màu xanh của web bạn */
+    border-color: #80b500 !important;
+    color: #fff !important;
+}
+
+/* Trạng thái di chuột vào (Hover) */
+.ltn__pagination .page-item .page-link:hover {
+    background-color: #80b500;
+    color: #fff;
+    border-color: #80b500;
+    transition: all 0.3s ease; /* Hiệu ứng chuyển màu mượt */
+}
+
+/* Loại bỏ viền xanh mặc định của Bootstrap khi bấm vào */
+.page-link:focus {
+    box-shadow: none !important;
+}
+
+/* Chỉnh riêng cho 2 nút mũi tên Previous/Next (nếu muốn icon to hơn chút) */
+.ltn__pagination .page-item:first-child .page-link,
+.ltn__pagination .page-item:last-child .page-link {
+    font-size: 18px;
+}

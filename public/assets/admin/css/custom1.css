@@ -1,0 +1,89 @@
+.custom-file-upload{
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #1c71c7;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.custom-file-upload:hover{
+    background-color: black;
+}
+
+#category-image, .product-images, #product-images{
+    display: none;
+}
+
+.image-preview {
+    margin-top: 10px;
+    max-width: 200px;
+    max-height: 200px;
+    border: 2px solid #007bff;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+
+.image-category, .image-product{
+    width: 80px;
+    height: 80px;
+}
+
+
+.btn-update-category, .btn-update-product{
+    color: green !important;
+}
+.btn-delete-category, .btn-delete-product{
+    color: red !important;
+}
+
+.category-image, #product-images{
+    display: none;
+}
+
+
+
+.image-preview-listproduct{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+
+.img-account{
+    width: 150px;
+    height: 150px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #17a2b8; /* Màu xanh dương (Info) */
+    color: #ffffff; /* Chữ màu trắng cho dễ đọc */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển màu mượt mà */
+}
+
+/* 2. Nút "Giao hàng" (hoặc Xác nhận) trong menu dropdown */
+.dropdown-menu .dropdown-item.confirm-order:hover {
+    background-color: #28a745; /* Màu xanh lá (Success) - Tạo cảm giác tích cực */
+    color: #ffffff;
+}
+
+
+
+
+
+/* Hộp thư admin*/
+.custom-message-top {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  white-space: unset !important;
+}
