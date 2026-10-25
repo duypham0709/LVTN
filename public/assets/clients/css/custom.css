@@ -59,7 +59,7 @@
 
 /* Định dạng cho link danh mục khi được "active" */
 .widget.ltn__menu-widget ul li a.category-filter.active {
-    color: var(--ltm__secondary-color); /* Đổi màu chữ sang màu cam (màu phụ) */
+    color: var(--ltn__secondary-color); /* Đổi màu chữ sang màu cam (màu phụ) */
     font-weight: bold; /* In đậm chữ */
     text-decoration: underline;
 }

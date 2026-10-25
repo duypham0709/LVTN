@@ -24,7 +24,8 @@
                                             <p>Thực phẩm sạch từ cửa hàng.</p>
                                         </div>
                                         <div class="btn-wrapper animated">
-                                            <a href="shop.html" class="theme-btn-1 btn btn-effect-1 text-uppercase">Khám phá
+                                            <a href="{{ route('products.index') }}"
+                                                class="theme-btn-1 btn btn-effect-1 text-uppercase">Khám phá
                                                 ngay</a>
                                         </div>
                                     </div>

@@ -174,52 +174,52 @@ $(document).ready(function () {
      *********************************/
 
     // Hàm lấy sản phẩm theo bộ lọc
-    // function fetchProducts() {
-    //     let category_id = $(".category-filter.active").data("id") || "";
-    //     let sort_by = $("#sort-by").val();
+    function fetchProducts() {
+        let category_id = $(".category-filter.active").data("id") || "";
+        let sort_by = $("#sort-by").val();
 
-    //     $.ajax({
-    //         url: "/products/filter",
-    //         type: "GET",
-    //         data: {
-    //             category_id: category_id,
-    //             sort_by: sort_by,
-    //         },
-    //         beforeSend: function () {
-    //             // $("#loading-spinner").show();
-    //             // $("#liton_product_grid").hide();
-    //             // $("#pagination-links").hide();
-    //         },
-    //         success: function (response) {
-    //             // Cập nhật lại lưới sản phẩm
-    //             $("#liton_product_grid").html(response.products_html);
-    //             // Cập nhật lại link phân trang
-    //             $("#pagination-links").html(response.pagination_html);
-    //         },
-    //         complete: function () {
-    //             // $("#loading-spinner").hide();
-    //             // $("#liton_product_grid").show();
-    //             // $("#pagination-links").show();
-    //         },
-    //         error: function (xhr) {
-    //             console.error(xhr.responseText);
-    //             alert("Có lỗi xảy ra khi lọc sản phẩm!");
-    //         },
-    //     });
-    // }
+        $.ajax({
+            url: "products/filter",
+            type: "GET",
+            data: {
+                category_id: category_id,
+                sort_by: sort_by,
+            },
+            beforeSend: function () {
+                // $("#loading-spinner").show();
+                // $("#liton_product_grid").hide();
+                // $("#pagination-links").hide();
+            },
+            success: function (response) {
+                // Cập nhật lại lưới sản phẩm
+                $("#liton_product_grid").html(response.products);
+                // Cập nhật lại link phân trang
+                $("#pagination-links").html(response.pagination);
+            },
+            complete: function () {
+                // $("#loading-spinner").hide();
+                // $("#liton_product_grid").show();
+                // $("#pagination-links").show();
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                alert("Có lỗi xảy ra khi lọc sản phẩm!");
+            },
+        });
+    }
 
     // Khi click vào 1 danh mục
 
-    // $(".category-filter").click(function () {
-    //     $(".category-filter").removeClass("active"); // Xóa 'active' ở tất cả các link
-    //     $(this).addClass("active"); // Thêm 'active' chỉ cho link vừa bấm
-    //     fetchProducts();
-    // });
+    $(".category-filter").click(function () {
+        $(".category-filter").removeClass("active"); // Xóa 'active' ở tất cả các link
+        $(this).addClass("active"); // Thêm 'active' chỉ cho link vừa bấm
+        fetchProducts();
+    });
 
-    // Khi thay đổi sắp xếp
-    // $("#sort-by").change(function () {
-    //     fetchProducts();
-    // });
+    //Khi thay đổi sắp xếp
+    $("#sort-by").change(function () {
+        fetchProducts();
+    });
 
     // Khi click vào link phân trang (AJAX)
     // $(document).on("click", "#pagination-links a", function (e) {

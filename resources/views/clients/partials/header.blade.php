@@ -67,11 +67,11 @@
                                     <li class="menu-icon"><a
                                                 href="javascript:void(0)">Về chúng tôi</a>
                                             <ul>
-                                                <li><a href="{{ asset('about') }}">Nông Sản Sạch là gì?</a></li>
+                                                <li><a href="{{ asset('about') }}">Về chúng tôi</a></li>
                                                 <li><a href="{{ asset('faq') }}">Những Câu Hỏi Thường Gặp</a></li>
                                             </ul>
                                     </li>
-                                    <li class="menu-icon"><a href="shop.html">Cửa hàng</a>
+                                    <li class="menu-icon"><a href="{{ route('products.index') }}">Cửa hàng</a>
                                     </li>
                                     <li><a href="contact.html">Liên hệ</a></li>
                                     <!-- <li class="special-link"><a href="contact.html">GET A QUOTE</a></li> -->
@@ -104,9 +104,13 @@
                             <li>
                                 <a href="#"><i class="icon-user"></i></a>
                                 <ul>
-                                    <li><a href="{{ route('login') }}">Đăng nhập</a></li>
-                                    <li><a href="{{ route('register') }}">Đăng ký</a></li>
-                                    <li><a href="{{ route('account') }}">Tài khoản</a></li>
+                                    @if (Auth::check())
+                                        <li><a href="{{ route('account') }}">Tài khoản</a></li>
+                                        <li><a href="{{ route('logout') }}">Đăng xuất</a></li>
+                                    @else
+                                        <li><a href="{{ route('login') }}">Đăng nhập</a></li>
+                                        <li><a href="{{ route('register') }}">Đăng ký</a></li>
+                                    @endif
                                 </ul>
                             </li>
                         </ul>
