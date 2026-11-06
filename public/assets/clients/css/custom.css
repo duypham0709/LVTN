@@ -248,3 +248,22 @@
 .ltn__pagination .page-item:last-child .page-link {
     font-size: 18px;
 }
+
+.product-price .product-unit {
+    color: #777;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.logout-submit {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+}
+
+.logout-submit:hover {
+    color: var(--ltn__secondary-color);
+}

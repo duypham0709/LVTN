@@ -1,183 +1,192 @@
-$(document).ready(function(){
+$(document).ready(function () {
+    $(document).on("keydown", ".js-integer-input", function (e) {
+        if (["e", "E", "+", "-", "."].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on("keydown", ".js-decimal-input", function (e) {
+        if (["e", "E", "+", "-"].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
 
     /*********************************
      * MANAGEMENT USERS
      *********************************/
-    $(document).on('click', '.upgradeStaff', function(e){
+    $(document).on("click", ".upgradeStaff", function (e) {
         let button = $(this);
-        let userId = button.data('userid');
+        let userId = button.data("userid");
 
         $.ajaxSetup({
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
         });
 
         $.ajax({
             type: "POST",
-            url: '/admin/user/upgrade',
+            url: "/admin/user/upgrade",
             data: {
-                user_id : userId,
+                user_id: userId,
             },
             success: function (response) {
-                if(response.status){
+                if (response.status) {
                     toastr.success(response.message);
-                    button.closest('.profile_view').find('.brief i').text('STAFF');
-                    button.closest('.profile_view').find('.changeStatus').hide();
+                    button
+                        .closest(".profile_view")
+                        .find(".brief i")
+                        .text("STAFF");
+                    button
+                        .closest(".profile_view")
+                        .find(".changeStatus")
+                        .hide();
                     button.hide();
-                }else{
+                } else {
                     toastr.error(response.message);
                 }
             },
             error: function (xhr, status, error) {
-                alert('Có lỗi xảy ra: ' + error);
+                const validationErrors = xhr.responseJSON?.errors;
+                if (validationErrors) {
+                    const errorMessage = Object.values(validationErrors)
+                        .flat()
+                        .join("\n");
+                    toastr.error(errorMessage, "Dữ liệu không hợp lệ");
+                    return;
+                }
+
+                alert("Có lỗi xảy ra: " + error);
             },
         });
-
-
-
     });
 
-
-
     // Xử lý nút thay đổi trạng thái (Xóa/Chặn/Khôi phục)
-    $(document).on('click', '.changeStatus', function(e){
+    $(document).on("click", ".changeStatus", function (e) {
         e.preventDefault(); // Ngăn load lại trang
 
         let button = $(this);
-        let userId = button.data('userid');
-        let status = button.data('status'); // Lấy trạng thái muốn đổi thành
+        let userId = button.data("userid");
+        let status = button.data("status"); // Lấy trạng thái muốn đổi thành
 
         // Hỏi xác nhận nếu là hành động xóa
-        if(status == 'delete'){
-            if(!confirm('Bạn có chắc chắn muốn xóa người này không?')) return;
+        if (status == "delete") {
+            if (!confirm("Bạn có chắc chắn muốn xóa người này không?")) return;
         }
 
         $.ajaxSetup({
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
         });
 
         $.ajax({
             type: "POST",
-            url: '/admin/user/change-status', // URL trùng với Route ở Bước 2
+            url: "/admin/user/change-status", // URL trùng với Route ở Bước 2
             data: {
-                user_id : userId,
-                status: status
+                user_id: userId,
+                status: status,
             },
             success: function (response) {
-                if(response.status){
+                if (response.status) {
                     toastr.success(response.message);
                     // Reload trang để cập nhật lại giao diện nút bấm
-                    setTimeout(function(){
+                    setTimeout(function () {
                         location.reload();
                     }, 1000);
-                }else{
+                } else {
                     toastr.error(response.message);
                 }
             },
             error: function (xhr, status, error) {
-                alert('Có lỗi xảy ra: ' + error);
+                alert("Có lỗi xảy ra: " + error);
             },
         });
     });
 
+    $(".btn_reset").on("click", function () {
+        let form = $(this).closest("form");
+        form.trigger("reset");
+        form.find('input[type="file"]').val("");
+        form.find("#image-preview").html("");
+        form.find("#image-preview").attr("src", "");
 
-    $('.btn_reset').on('click', function() {
-        let form = $(this).closest('form');
-        form.trigger('reset');
-        form.find('input[type="file"]').val('');
-        form.find('#image-preview').html('');
-        form.find('#image-preview').attr('src', '');
-
-
-        form.find('#image-preview-container').html('');
-
+        form.find("#image-preview-container").html("");
     });
 
-
     // Xử lý thêm nhân viên mới
-    $('#addStaffForm').on('submit', function(e){
+    $("#addStaffForm").on("submit", function (e) {
         e.preventDefault();
 
         let form = $(this);
-        let btn = $('#btnSaveStaff');
+        let btn = $("#btnSaveStaff");
         let originalText = btn.text();
 
         // 1. Reset trạng thái lỗi cũ (Xóa đỏ, xóa chữ)
-        $('span.error-text').text('');
-        $('input.form-control').removeClass('is-invalid');
+        $("span.error-text").text("");
+        $("input.form-control").removeClass("is-invalid");
 
-        btn.prop('disabled', true).text('Đang lưu...');
+        btn.prop("disabled", true).text("Đang lưu...");
 
         $.ajax({
             type: "POST",
-            url: form.attr('action'),
+            url: form.attr("action"),
             data: form.serialize(),
             success: function (response) {
-                if(response.status){
+                if (response.status) {
                     toastr.success(response.message); // Hiện thông báo thành công
-                    $('#addStaffModal').modal('hide'); // Tắt modal
+                    $("#addStaffModal").modal("hide"); // Tắt modal
                     form[0].reset(); // Xóa trắng form
 
                     // Reload lại trang sau 1s để thấy nhân viên mới
-                    setTimeout(function(){
+                    setTimeout(function () {
                         location.reload();
                     }, 1000);
                 }
             },
             error: function (xhr) {
-                btn.prop('disabled', false).text(originalText);
+                btn.prop("disabled", false).text(originalText);
 
                 // 2. Xử lý lỗi 422 (Lỗi Validate từ Laravel trả về)
-                if(xhr.status === 422){
+                if (xhr.status === 422) {
                     let errors = xhr.responseJSON.errors;
 
                     // Duyệt qua từng lỗi và gán vào ô input tương ứng
-                    $.each(errors, function(key, value){
+                    $.each(errors, function (key, value) {
                         // key = tên field (vd: email, phone_number)
                         // value[0] = nội dung lỗi (vd: Email đã tồn tại)
 
                         // Tìm thẻ input có name="key" và thêm class đỏ
-                        $('input[name="'+key+'"]').addClass('is-invalid');
+                        $('input[name="' + key + '"]').addClass("is-invalid");
 
                         // Tìm thẻ span có class="key_error" và điền chữ lỗi vào
-                        $('span.'+key+'_error').text(value[0]);
+                        $("span." + key + "_error").text(value[0]);
                     });
 
                     // toastr.error('Vui lòng kiểm tra lại thông tin nhập vào!');
-                }else{
-                    toastr.error('Lỗi hệ thống, vui lòng thử lại.');
+                } else {
+                    toastr.error("Lỗi hệ thống, vui lòng thử lại.");
                 }
-            }
+            },
         });
     });
-
-
-
-
 
     /*********************************
      * MANAGEMENT CATEGORY
      *********************************/
 
-
     $("#category-image").change(function () {
         let file = this.files[0];
         if (file) {
             let reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 $("#image-preview").attr("src", e.target.result);
-            }
+            };
             reader.readAsDataURL(file);
         } else {
             $("#image-preview").attr("src", "");
-
-
         }
     });
-
 
     $(".category-image").change(function () {
         let file = this.files[0];
@@ -200,10 +209,8 @@ $(document).ready(function(){
         }
     });
 
-
-
     //update category
-    $(document).on("click", ".btn-update-submit-category", function(e){
+    $(document).on("click", ".btn-update-submit-category", function (e) {
         e.preventDefault();
         let button = $(this);
         let categoryId = button.data("id");
@@ -262,10 +269,9 @@ $(document).ready(function(){
 
                         </tr>`;
 
-                        // thay thế hàng cũ bằng hàng mới
-                        $('#category-row-' + categoryId).replaceWith(newRow);
-                        $('#modalUpdate-' + categoryId).modal('hide');
-
+                    // thay thế hàng cũ bằng hàng mới
+                    $("#category-row-" + categoryId).replaceWith(newRow);
+                    $("#modalUpdate-" + categoryId).modal("hide");
                 } else {
                     toastr.error(response.message);
                 }
@@ -278,20 +284,16 @@ $(document).ready(function(){
                 button.text("Chỉnh sửa");
             },
         });
-
-
     });
 
-
-
     //delete category
-    $(document).on("click", ".btn-delete-category", function(e){
+    $(document).on("click", ".btn-delete-category", function (e) {
         e.preventDefault();
         let button = $(this);
         let categoryId = button.data("id");
         let row = button.closest("tr");
 
-        if(!confirm('Bạn có chắc chắn muốn xóa danh mục này không?')) return;
+        if (!confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) return;
 
         $.ajaxSetup({
             headers: {
@@ -320,10 +322,6 @@ $(document).ready(function(){
         });
     });
 
-
-
-
-
     /*********************************
      * MANAGEMENT - Products
      *********************************/
@@ -343,12 +341,12 @@ $(document).ready(function(){
                         let img = $("<img>")
                             .attr("src", e.target.result)
                             .addClass("image-preview");
-                            img.css({
-                                "max-width": "150px",
-                                "max-height": "150px",
-                                "margin": "5px",
-                                "border-radius": "5px",
-                            })
+                        img.css({
+                            "max-width": "150px",
+                            "max-height": "150px",
+                            margin: "5px",
+                            "border-radius": "5px",
+                        });
                         previewContainer.append(img);
                     };
                     reader.readAsDataURL(file);
@@ -358,9 +356,6 @@ $(document).ready(function(){
             previewContainer.html("");
         }
     });
-
-
-
 
     $(".product-images").change(function (e) {
         let files = e.target.files;
@@ -378,12 +373,12 @@ $(document).ready(function(){
                         let img = $("<img>")
                             .attr("src", e.target.result)
                             .addClass("image-preview");
-                            img.css({
-                                "max-width": "150px",
-                                "max-height": "150px",
-                                "margin": "5px",
-                                "border-radius": "5px",
-                            })
+                        img.css({
+                            "max-width": "150px",
+                            "max-height": "150px",
+                            margin: "5px",
+                            "border-radius": "5px",
+                        });
                         previewContainer.append(img);
                     };
                     reader.readAsDataURL(file);
@@ -394,11 +389,8 @@ $(document).ready(function(){
         }
     });
 
-
-
-
     //update product
-    $(document).on("click", ".btn-update-submit-product", function(e){
+    $(document).on("click", ".btn-update-submit-product", function (e) {
         e.preventDefault();
         let button = $(this);
         let productId = button.data("id");
@@ -424,8 +416,6 @@ $(document).ready(function(){
             },
             success: function (response) {
                 if (response.status) {
-
-
                     let product = response.data;
 
                     let productId = product.id;
@@ -435,8 +425,7 @@ $(document).ready(function(){
                     // Dùng image_url từ Controller trả về
                     let imageSrc = product.image_url;
 
-                    // Regenerate new HTML for updated now
-                    //Regenerate new HTML for updated row
+                    // Regenerate new HTML for updated row
                     let newRow = `
                         <tr id="product-row-${productId}">
                             <td>
@@ -446,8 +435,8 @@ $(document).ready(function(){
                             <td>${product.category_name}</td>
                             <td>${product.description}</td>
                             <td>${product.stock}</td>
-                            <td>${product.price_formatted} VND</td>
-                            <td>${product.unit}</td>
+                            <td>${product.price_formatted}đ</td>
+                            <td>${product.unit_label}</td>
                             <td>${product.status}</td>
 
                             <td>
@@ -468,12 +457,11 @@ $(document).ready(function(){
                             </td>
                         </tr>`;
 
-                        // Thay thế dòng cũ bằng dòng mới
-                        $('#product-row-' + productId).replaceWith(newRow);
+                    // Thay thế dòng cũ bằng dòng mới
+                    $("#product-row-" + productId).replaceWith(newRow);
 
-                        toastr.success(response.message);
-                        $('#modalUpdate-' + productId).modal('hide');
-
+                    toastr.success(response.message);
+                    $("#modalUpdate-" + productId).modal("hide");
                 } else {
                     toastr.error(response.message);
                 }
@@ -487,28 +475,32 @@ $(document).ready(function(){
             },
         });
     });
-
-
-
-
-
+    // unit_quantity
+    $("#unit-quantity").on("input", function () {
+        let value = $(this).val();
+        if (value <= 0) {
+            $(this).val(0);
+        }
+    });
 
     //delete product
-    $(document).on("click", ".btn-delete-product", function(e){
+    $(document).on("click", ".btn-delete-product", function (e) {
         e.preventDefault();
         let button = $(this);
         let productId = button.data("id");
 
         let status = button.data("status"); // Lấy trạng thái từ nút bấm
 
-        if (status === 'in_stock') {
-            toastr.warning('Sản phẩm đang bán (Còn hàng) không được phép xóa! Vui lòng chuyển trạng thái sang Hết hàng trước.');
+        if (status === "in_stock") {
+            toastr.warning(
+                "Sản phẩm đang bán (Còn hàng) không được phép xóa! Vui lòng chuyển trạng thái sang Hết hàng trước.",
+            );
             return; // Dừng lại ngay, không chạy tiếp code bên dưới
         }
 
         let row = button.closest("tr");
 
-        if(!confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) return;
+        if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) return;
 
         $.ajaxSetup({
             headers: {
@@ -537,17 +529,12 @@ $(document).ready(function(){
         });
     });
 
-
-
-
-
-
     /*********************************
      * MANAGEMENT - Order- Hành động (quản lý quản trị đơn hàng, nghĩa là mình có thể quyết định xem
      * có duyệt đơn hàng hay không)
      *********************************/
     //giao hàng
-    $(document).on("click", ".confirm-order", function(e){
+    $(document).on("click", ".confirm-order", function (e) {
         e.preventDefault();
         let button = $(this);
         let orderId = button.data("id");
@@ -557,7 +544,6 @@ $(document).ready(function(){
                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
             },
         });
-
 
         $.ajax({
             type: "POST",
@@ -572,7 +558,7 @@ $(document).ready(function(){
                         .closest("tr")
                         .find(".order-status")
                         .html(
-                            '<span class="custom-badge badge badge-info">Đang giao hàng</span>'
+                            '<span class="custom-badge badge badge-info">Đang giao hàng</span>',
                         );
                     button.hide();
                 } else {
@@ -581,14 +567,9 @@ $(document).ready(function(){
             },
             error: function (xhr, status, error) {
                 alert("An error occurred: " + error);
-            }
+            },
         });
-
-
-
     });
-
-
 
     //Gửi mail đến cho khách
     $(document).on("click", ".send-invoice-mail", function (e) {
@@ -622,8 +603,6 @@ $(document).ready(function(){
         });
     });
 
-
-
     //Admin hủy đơn
     $(document).on("click", ".cancel-order", function (e) {
         e.preventDefault();
@@ -632,8 +611,8 @@ $(document).ready(function(){
 
         $.ajaxSetup({
             headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
-            }
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
         });
 
         $.ajax({
@@ -656,21 +635,14 @@ $(document).ready(function(){
         });
     });
 
-
-
-
-
-
-
     /*********************************
      * MANAGEMENT - Contact
      *********************************/
-    if($("#editor-contact").length){
-            CKEDITOR.replace("editor-contact", {
+    if ($("#editor-contact").length) {
+        CKEDITOR.replace("editor-contact", {
             versionCheck: false,
         });
     }
-
 
     //khi click từng mục trong khu vực "Liên hệ khách hàng"
     $(document).on("click", ".contact-item", function (e) {
@@ -681,24 +653,23 @@ $(document).ready(function(){
         let isReplied = $(this).attr("data-is_replied");
 
         $(".mail_view .inbox-body .sender-info strong").text(contactName);
-        $(".mail_view .inbox-body .sender-info span").text('('+ contactEmail +')');
+        $(".mail_view .inbox-body .sender-info span").text(
+            "(" + contactEmail + ")",
+        );
         $(".mail_view .view-mail p").text(contactMessage);
 
-        console.log(contactId ,isReplied);
-            $(".mail_view").show();
+        console.log(contactId, isReplied);
+        $(".mail_view").show();
 
-        if (isReplied != 0){
-            $('#compose').hide();
-        }else{
+        if (isReplied != 0) {
+            $("#compose").hide();
+        } else {
             // Add attribute data-email to button reply
             $(".send-reply-contact").attr("data-email", contactEmail);
             $(".send-reply-contact").attr("data-id", contactId);
             $("#compose").show();
         }
-
     });
-
-
 
     //Xử lý cái nút "gửi"
     $(document).on("click", ".send-reply-contact", function (e) {
@@ -710,10 +681,9 @@ $(document).ready(function(){
 
         $.ajaxSetup({
             headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
-            }
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
         });
-
 
         $.ajax({
             type: "POST",
@@ -731,12 +701,12 @@ $(document).ready(function(){
                     CKEDITOR.instances["editor-contact"].setData("");
                     $("#editor-contact").empty();
 
-
-                    let contactItem = $('.contact-item[data-id="' + contactId + '"]');
-                    contactItem.attr("data-is_replied" , "1");
+                    let contactItem = $(
+                        '.contact-item[data-id="' + contactId + '"]',
+                    );
+                    contactItem.attr("data-is_replied", "1");
 
                     contactItem.find("i.fa-circle").css("color", "green");
-
 
                     $(".compose").slideToggle();
                     button
@@ -748,45 +718,40 @@ $(document).ready(function(){
             },
             error: function (xhr, status, error) {
                 alert("Có lỗi xảy ra: " + error);
-            }
+            },
         });
     });
-
-
-
 
     /*********************************
      * MANAGEMENT -Profile admin
      *********************************/
     // nút đổi mật khẩu
-    $(".form-change-pass").on("click", function(e){
+    $(".form-change-pass").on("click", function (e) {
         e.preventDefault();
         $("#change-password").toggle();
 
-        if($("#change-password").is(":visible")){
+        if ($("#change-password").is(":visible")) {
             $(this).text("Đóng");
-        }else{
+        } else {
             $(this).text("Đổi mật khẩu");
         }
-
     });
 
     //click vào ảnh
-    $('.update-avatar').on('click', function (e) {
+    $(".update-avatar").on("click", function (e) {
         e.preventDefault();
-        $('#avatar').trigger('click');
+        $("#avatar").trigger("click");
     });
 
     //nút đổi ảnh
-    $('#avatar').on('change', function (e) {
+    $("#avatar").on("change", function (e) {
         let file = e.target.files[0];
         if (file) {
             let reader = new FileReader();
             reader.onload = function (e) {
-                $('#avatar-preview').attr('src', e.target.result);
+                $("#avatar-preview").attr("src", e.target.result);
             };
             reader.readAsDataURL(file);
-
 
             //tạo formData để gửi ảnh đại diện admin
             let formData = new FormData();
@@ -794,89 +759,68 @@ $(document).ready(function(){
             formData.append("avatar", file);
 
             updateProfile(formData);
-
-
         } else {
-            $('#avatar-preview').attr('src', '');
+            $("#avatar-preview").attr("src", "");
         }
     });
 
-
     //logic validate khi nhấn nút "cập nhật"
-    $("#update-profile").submit(function (e){
+    $("#update-profile").submit(function (e) {
         let valid = true;
         let name = $("#name").val().trim();
         let phone = $("#phone").val().trim();
         let address = $("#address").val().trim();
         e.preventDefault();
 
-        if(name.length < 3)
-        {
-            toastr.error(
-                "Họ và tên phải có ít nhất 3 ký tự."
-            );
+        if (name.length < 3) {
+            toastr.error("Họ và tên phải có ít nhất 3 ký tự.");
             valid = false;
         }
 
         let phoneRegex = /^0\d{9}$/;
 
-        if(!phoneRegex.test(phone)) {
+        if (!phoneRegex.test(phone)) {
             toastr.error(
-                "Số điện thoại không hợp lệ. Phải có 10 số và bắt đầu bằng 0."
+                "Số điện thoại không hợp lệ. Phải có 10 số và bắt đầu bằng 0.",
             );
             valid = false;
         }
 
-        if(valid)
-        {
+        if (valid) {
             let formData = new FormData();
-            formData.append('type', "profile");
-            formData.append('name', name);
-            formData.append('phone', phone);
-            formData.append('address', address);
+            formData.append("type", "profile");
+            formData.append("name", name);
+            formData.append("phone", phone);
+            formData.append("address", address);
 
             updateProfile(formData);
         }
-
     });
 
-
-
     //bảng validate cái phần đổi mật khẩu
-    $("#change-password").submit(function (e){
+    $("#change-password").submit(function (e) {
         let valid = true;
         let current_password = $("#current_password").val().trim();
         let new_password = $("#new_password").val().trim();
         let confirm_password = $("#confirm_password").val().trim();
         e.preventDefault();
 
-        if(current_password === "")
-        {
-            toastr.error(
-                "Bạn cần nhập đúng mật khẩu hiện tại."
-            );
+        if (current_password === "") {
+            toastr.error("Bạn cần nhập đúng mật khẩu hiện tại.");
             valid = false;
         }
 
-
-        if(new_password.length < 6) {
-            toastr.error(
-                "Mật khẩu mới phải có ít nhất 6 ký tự"
-            );
+        if (new_password.length < 6) {
+            toastr.error("Mật khẩu mới phải có ít nhất 6 ký tự");
             valid = false;
         }
 
-
-        if(new_password !== confirm_password) {
-            toastr.error(
-                "Mật khẩu xác nhận không khớp."
-            );
+        if (new_password !== confirm_password) {
+            toastr.error("Mật khẩu xác nhận không khớp.");
             valid = false;
         }
 
-
-        if(valid)
-        {
+        if (valid) {
             let formData = new FormData();
             formData.append("type", "password");
             formData.append("current_password", current_password);
@@ -885,19 +829,15 @@ $(document).ready(function(){
 
             updateProfile(formData);
         }
-
     });
 
-
     //logic cập nhật thông tin khi nhập chính xác
-    function updateProfile(formData)
-    {
+    function updateProfile(formData) {
         $.ajaxSetup({
             headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
-            }
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
         });
-
 
         $.ajax({
             url: "profile/update",
@@ -911,8 +851,7 @@ $(document).ready(function(){
                 if (response.status) {
                     toastr.success(response.message);
 
-
-                    if(formData.get("type") === "profile"){
+                    if (formData.get("type") === "profile") {
                         console.log(formData.get("name"));
 
                         $("#user-name").text(formData.get("name"));
@@ -921,41 +860,36 @@ $(document).ready(function(){
                         $("#user-phone").text(formData.get("phone"));
                     }
 
-                    if(formData.get("type") === "password"){
+                    if (formData.get("type") === "password") {
                         $("#change-password")[0].reset();
                     }
 
-                    if(formData.get("type") === "avatar"){
+                    if (formData.get("type") === "avatar") {
                         $("#avatar-preview").attr("src", response.avatar_url);
                     }
-
-
-
                 } else {
                     toastr.error(response.message);
                 }
             },
             error: function (xhr, status, error) {
                 alert("Có lỗi xảy ra: " + error);
-            }
+            },
         });
     }
-
-
 
     /*********************************
      * MANAGEMENT notification
      *********************************/
-    $(document).on('click', '.notification-item', function(e) {
+    $(document).on("click", ".notification-item", function (e) {
         e.preventDefault(); // 1. QUAN TRỌNG: Ngăn không cho trình duyệt tự chuyển trang ngay lập tức
 
         let noti_id = $(this).data("id");
-        let redirectUrl = $(this).attr('href'); // 2. Lưu lại cái link để tí nữa chuyển sau
+        let redirectUrl = $(this).attr("href"); // 2. Lưu lại cái link để tí nữa chuyển sau
 
         $.ajaxSetup({
             headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
-            }
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
         });
 
         $.ajax({
@@ -963,22 +897,19 @@ $(document).ready(function(){
             type: "POST",
             dataType: "json",
             data: {
-                id: noti_id
+                id: noti_id,
             },
 
-            success: function(response) {
+            success: function (response) {
                 // 3. Cập nhật thành công -> Mới bắt đầu chuyển trang
                 window.location.href = redirectUrl;
             },
 
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 // Lỡ có lỗi server thì vẫn cho khách chuyển trang luôn (để họ đỡ bị kẹt lại)
                 console.log("Lỗi update status: " + error);
                 window.location.href = redirectUrl;
-            }
+            },
         });
-    })
-
-
-
+    });
 });

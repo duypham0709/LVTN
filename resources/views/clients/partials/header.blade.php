@@ -90,8 +90,8 @@
                             </div>
                         </div>
                         <div class="header-search-1-form">
-                            <form id="#" method="get" action="#">
-                                <input type="text" name="search" value="" placeholder="Search here..." />
+                            <form id="#" method="GET" action="#">
+                                <input type="text" name="keyword" value="" placeholder="Tìm kiếm..." />
                                 <button type="submit">
                                     <span><i class="icon-search"></i></span>
                                 </button>
@@ -102,11 +102,16 @@
                     <div class="ltn__drop-menu user-menu">
                         <ul>
                             <li>
-                                <a href="#"><i class="icon-user"></i></a>
+                                <a href="javascript:void(0)"><i class="icon-user"></i></a>
                                 <ul>
                                     @if (Auth::check())
                                         <li><a href="{{ route('account') }}">Tài khoản</a></li>
-                                        <li><a href="{{ route('logout') }}">Đăng xuất</a></li>
+                                        <li>
+                                            <form action="{{ route('logout') }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="logout-submit">Đăng xuất</button>
+                                            </form>
+                                        </li>
                                     @else
                                         <li><a href="{{ route('login') }}">Đăng nhập</a></li>
                                         <li><a href="{{ route('register') }}">Đăng ký</a></li>
@@ -119,7 +124,13 @@
                     <div class="mini-cart-icon">
                         <a href="#ltn__utilize-cart-menu" class="ltn__utilize-toggle">
                             <i class="icon-shopping-cart"></i>
-                            <sup>2</sup>
+                            <sup id="cart_count">
+                                @auth
+                                    {{ \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') }}
+                                @else
+                                    {{ session('cart') ? array_sum(array_column(session('cart'), 'quantity')) : 0 }}
+                                @endauth
+                            </sup>
                         </a>
                     </div>
                     <!-- mini-cart -->
@@ -145,6 +156,15 @@
     <!-- ltn__header-middle-area end -->
 </header>
 <!-- HEADER AREA END -->
+
+<!-- Utilize Cart Menu Start -->
+<div id="ltn__utilize-cart-menu" class="ltn__utilize ltn__utilize-cart-menu">
+    <div class="ltn__utilize-menu-inner ltn__scrollbar">
+
+
+    </div>
+</div>
+<!-- Utilize Cart Menu End -->
 
 @include('clients.partials.utilize_moblie')
 

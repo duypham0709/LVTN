@@ -3,10 +3,9 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>@yield('title')</title>
-    <meta name="robots" content="noindex, follow" />
-    <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Place favicon.png in the root directory -->
@@ -26,7 +25,7 @@
 </head>
 
 <body>
-    <div class="body-wrapper">
+    <div class="wrapper">
         @include('clients.partials.header')
 
         @hasSection('breadcrumb')
@@ -61,6 +60,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
 
+    <script>
+        // 1. Setup CSRF Token cho mọi request AJAX
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // 2. Cấu hình Toastr mặc định
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000",
+        }
+    </script>
+
+    @stack('scripts')
 </body>
 
 </html>

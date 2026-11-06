@@ -35,30 +35,31 @@
                     @endif
 
                     @if ($adminUser->role->permissions->contains('name', 'manage_categories'))
-                        <li><a href="#"><i class="fa fa-list"></i> Quản lý danh mục <span
+                        <li><a href="javascript:void(0)"><i class="fa fa-list"></i> Quản lý danh mục <span
                                     class="fa fa-chevron-down"></span></a>
                             <ul class="nav child_menu">
-                                <li><a href="general_elements.html">Thêm danh mục</a></li>
-                                <li><a href="media_gallery.html">Danh sách danh mục</a></li>
+                                <li><a href="{{ route('admin.categories.add') }}">Thêm danh mục</a></li>
+                                <li><a href="{{ route('admin.categories.index') }}">Danh sách danh mục</a></li>
                             </ul>
                         </li>
                     @endif
 
                     @if ($adminUser->role->permissions->contains('name', 'manage_products'))
-                        <li><a href="#"><i class="fa fa-cubes"></i> Quản lý sản phẩm <span
+                        <li><a href="javascript:void(0)"><i class="fa fa-cubes"></i> Quản lý sản phẩm <span
                                     class="fa fa-chevron-down"></span></a>
                             <ul class="nav child_menu">
-                                <li><a href="general_elements.html">Thêm sản phẩm</a></li>
-                                <li><a href="media_gallery.html">Danh sách sản phẩm</a></li>
+                                <li><a href="{{ route('admin.product.add') }}">Thêm sản phẩm</a></li>
+                                <li><a href="{{ route('admin.products.index') }}">Danh sách sản phẩm</a></li>
                             </ul>
                         </li>
                     @endif
 
                     @if ($adminUser->role->permissions->contains('name', 'manage_orders'))
-                        <li><a href="#"><i class="fa fa-cart-plus"></i> Quản lý đơn hàng </a></li>
+                        <li><a href=""><i class="fa fa-cart-plus"></i> Quản lý đơn hàng
+                            </a></li>
                     @endif
                     @if ($adminUser->role->permissions->contains('name', 'manage_contacts'))
-                        <li><a href="#"><i class="fa fa-phone"></i> Liên hệ </a></li>
+                        <li><a href=""><i class="fa fa-phone"></i> Liên hệ </a></li>
                     @endif
                 </ul>
             </div>

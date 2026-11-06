@@ -35,19 +35,19 @@
     <!-- jQuery-toast-CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/custom1.css') }}">
 
-    {{-- @php
+    @php
         $dataTableRoutes = [
             'admin.categories.index',
             'admin.products.index',
             'admin.orders.index',
             'admin.users.index',
         ];
-    @endphp --}}
+    @endphp
 
-    {{-- @if (in_array(Route::currentRouteName(), $dataTableRoutes))
+    @if (in_array(Route::currentRouteName(), $dataTableRoutes))
         <!-- Datatables -->
-
         <link href="{{ asset('assets/admin/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css') }}"
             rel="stylesheet">
         <link href="{{ asset('assets/admin/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css') }}"
@@ -59,7 +59,7 @@
             rel="stylesheet">
         <link href="{{ asset('assets/admin/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css') }}"
             rel="stylesheet">
-    @endif --}}
+    @endif
 
 
 
@@ -116,7 +116,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 
-    {{-- @if (in_array(Route::currentRouteName(), $dataTableRoutes))
+    @if (in_array(Route::currentRouteName(), $dataTableRoutes))
         <!-- Datatables -->
         <script src="{{ asset('assets/admin/vendors/datatables.net/js/jquery.dataTables.min.js') }}"></script>
         <script src="{{ asset('assets/admin/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
@@ -133,10 +133,7 @@
         <script src="{{ asset('assets/admin/vendors/jszip/dist/jszip.min.js') }}"></script>
         <script src="{{ asset('assets/admin/vendors/pdfmake/build/pdfmake.min.js') }}"></script>
         <script src="{{ asset('assets/admin/vendors/pdfmake/build/vfs_fonts.js') }}"></script>
-    @endif --}}
-
-
-
+    @endif
 
     <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 

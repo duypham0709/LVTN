@@ -5,14 +5,17 @@ namespace App\Http\Controllers\Clients;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class ProductController extends Controller
 {
     public function index()
     {
         $categories = Category::with('products')->get();
-        $products = Product::with('firstImage')
+        $products = Product::with(['firstImage', 'category'])
             ->where('status', 'in_stock')
             ->orderByDesc('id')
             ->paginate(9)
@@ -20,17 +23,18 @@ class ProductController extends Controller
 
         foreach ($products as $product) {
             $product->image_url = $product->firstImage?->image
-                ? asset('storage/' . $product->firstImage->image)
+                ? asset('storage/'.$product->firstImage->image)
                 : asset('storage/uploads/products/default-product.png');
         }
 
         return view('clients.pages.products', compact('categories', 'products'));
     }
 
+    // Lọc sản phẩm
     public function filter(Request $request)
     {
-        //$query = Product::query();
-        $query = Product::with('firstImage')
+        // Lấy danh mục để hiển thị trên trang
+        $query = Product::with(['firstImage', 'category'])
             ->where('status', 'in_stock');
         // Lọc theo danh mục nếu tồn tại
 
@@ -72,25 +76,79 @@ class ProductController extends Controller
 
         foreach ($products as $product) {
             $product->image_url = $product->firstImage?->image
-                ? asset('storage/' . $product->firstImage->image)
+                ? asset('storage/'.$product->firstImage->image)
                 : asset('storage/uploads/products/default-product.png');
         }
 
         return response()->json([
             'products' => view('clients.components.products_grid', compact('products'))->render(),
+            'pagination' => $products->links('clients.components.pagination.pagination_custom')->toHtml(),
         ]);
     }
 
-    public function detail($slug)
+    // Lọc sản phẩm theo danh mục
+    public function filterByCategory(string $slug): View
     {
-        $product = Product::with(['category', 'images'])->where('slug', $slug)->firstOrFail();
+        $categories = Category::withCount('products')->get();
+        // Lấy danh mục được chọn dựa trên slug
+        $selectedCategory = Category::where('slug', $slug)->firstOrFail();
+
+        $products = Product::with(['firstImage', 'category'])
+            ->where('category_id', $selectedCategory->id)
+            ->whereIn('status', ['in_stock'])
+            ->orderByDesc('id')
+            ->paginate(9);
+
+        /** @var Product $product */
+        foreach ($products as $product) {
+            $product->image_url = $product->firstImage?->image
+                ? asset('storage/'.$product->firstImage->image)
+                : asset('storage/uploads/products/default-product.png');
+        }
+
+        return view('clients.pages.products', compact('categories', 'products', 'selectedCategory'));
+    }
+
+    // Chi tiết sản phẩm
+    public function detail(string $categorySlug, string $productSlug): View
+    {
+        $category = Category::where('slug', $categorySlug)->firstOrFail();
+        $product = Product::with(['category', 'images'])
+            ->where('category_id', $category->id)
+            ->where('slug', $productSlug)
+            ->firstOrFail();
+
+        // Lấy hình ảnh đầu tiên hợp lệ của sản phẩm hoặc sử dụng hình ảnh mặc định nếu không có
+        $fallbackImage = $product->images->first(
+            fn ($image) => filled($image->image) && Storage::disk('public')->exists($image->image),
+        );
+        $product->image_url = $fallbackImage
+            ? asset('storage/'.$fallbackImage->image)
+            : asset('storage/uploads/products/default-product.png');
 
         // Lấy sản phẩm liên quan từ cùng một danh mục
-        $relatedProducts = Product::where('category_id', $product->category_id)
+        $relatedProducts = Product::with(['firstImage', 'category'])
+            ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->limit(6)
             ->get();
 
+        foreach ($relatedProducts as $related) {
+            $related->image_url = $related->firstImage
+                ? asset('storage/'.$related->firstImage->image)
+                : asset('storage/uploads/products/default-product.png');
+        }
+
         return view('clients.pages.product_detail', compact('product', 'relatedProducts'));
     }
+
+    // public function legacyDetail(string $slug): RedirectResponse
+    // {
+    //     $product = Product::with('category')->where('slug', $slug)->firstOrFail();
+
+    //     return redirect()->route('product.detail', [
+    //         'categorySlug' => $product->category->slug,
+    //         'productSlug' => $product->slug,
+    //     ], 301);
+    // }
 }

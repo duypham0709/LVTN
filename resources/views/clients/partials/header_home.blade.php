@@ -1,7 +1,7 @@
 <!-- HEADER AREA START (header-5) -->
 <header class="ltn__header-area ltn__header-5 ltn__header-transparent-- gradient-color-4---">
     <!-- ltn__header-top-area start -->
-    <div class="ltn__header-top-area">
+    {{-- <div class="ltn__header-top-area">
         <div class="container">
             <div class="row">
                 <div class="col-md-7">
@@ -39,7 +39,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     <!-- ltn__header-top-area end -->
 
     <!-- ltn__header-middle-area start -->
@@ -91,8 +91,8 @@
                             </div>
                         </div>
                         <div class="header-search-1-form">
-                            <form id="#" method="get" action="#">
-                                <input type="text" name="search" value="" placeholder="Search here..." />
+                            <form id="#" method="GET" action="#">
+                                <input type="text" name="search" value="" placeholder="Tìm kiếm..." />
                                 <button type="submit">
                                     <span><i class="icon-search"></i></span>
                                 </button>
@@ -103,11 +103,16 @@
                     <div class="ltn__drop-menu user-menu">
                         <ul>
                             <li>
-                                <a href="#"><i class="icon-user"></i></a>
+                                <a href="javascript:void(0)"><i class="icon-user"></i></a>
                                 <ul>
                                     @if (Auth::check())
                                         <li><a href="{{ route('account') }}">Tài khoản</a></li>
-                                        <li><a href="{{ route('logout') }}">Đăng xuất</a></li>
+                                        <li>
+                                            <form action="{{ route('logout') }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="logout-submit">Đăng xuất</button>
+                                            </form>
+                                        </li>
                                     @else
                                         <li><a href="{{ route('login') }}">Đăng nhập</a></li>
                                         <li><a href="{{ route('register') }}">Đăng ký</a></li>
@@ -120,7 +125,13 @@
                     <div class="mini-cart-icon">
                         <a href="#ltn__utilize-cart-menu" class="ltn__utilize-toggle">
                             <i class="icon-shopping-cart"></i>
-                            <sup>2</sup>
+                            <sup id="cart_count">
+                                @auth
+                                    {{ \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') }}
+                                @else
+                                    {{ session('cart') ? array_sum(array_column(session('cart'), 'quantity')) : 0 }}
+                                @endauth
+                            </sup>
                         </a>
                     </div>
                     <!-- mini-cart -->
@@ -150,62 +161,7 @@
 <!-- Utilize Cart Menu Start -->
 <div id="ltn__utilize-cart-menu" class="ltn__utilize ltn__utilize-cart-menu">
     <div class="ltn__utilize-menu-inner ltn__scrollbar">
-        <div class="ltn__utilize-menu-head">
-            <span class="ltn__utilize-menu-title">Cart</span>
-            <button class="ltn__utilize-close">×</button>
-        </div>
-        <div class="mini-cart-product-area ltn__scrollbar">
-            <div class="mini-cart-item clearfix">
-                <div class="mini-cart-img">
-                    <a href="#"><img src="img/product/1.png" alt="Image"></a>
-                    <span class="mini-cart-item-delete"><i class="icon-cancel"></i></span>
-                </div>
-                <div class="mini-cart-info">
-                    <h6><a href="#">Red Hot Tomato</a></h6>
-                    <span class="mini-cart-quantity">1 x $65.00</span>
-                </div>
-            </div>
-            <div class="mini-cart-item clearfix">
-                <div class="mini-cart-img">
-                    <a href="#"><img src="img/product/2.png" alt="Image"></a>
-                    <span class="mini-cart-item-delete"><i class="icon-cancel"></i></span>
-                </div>
-                <div class="mini-cart-info">
-                    <h6><a href="#">Nấm hương</a></h6>
-                    <span class="mini-cart-quantity">1 x $85.00</span>
-                </div>
-            </div>
-            <div class="mini-cart-item clearfix">
-                <div class="mini-cart-img">
-                    <a href="#"><img src="img/product/3.png" alt="Image"></a>
-                    <span class="mini-cart-item-delete"><i class="icon-cancel"></i></span>
-                </div>
-                <div class="mini-cart-info">
-                    <h6><a href="#">Orange Sliced Mix</a></h6>
-                    <span class="mini-cart-quantity">1 x $92.00</span>
-                </div>
-            </div>
-            <div class="mini-cart-item clearfix">
-                <div class="mini-cart-img">
-                    <a href="#"><img src="img/product/4.png" alt="Image"></a>
-                    <span class="mini-cart-item-delete"><i class="icon-cancel"></i></span>
-                </div>
-                <div class="mini-cart-info">
-                    <h6><a href="#">Orange Fresh Juice</a></h6>
-                    <span class="mini-cart-quantity">1 x $68.00</span>
-                </div>
-            </div>
-        </div>
-        <div class="mini-cart-footer">
-            <div class="mini-cart-sub-total">
-                <h5>Subtotal: <span>$310.00</span></h5>
-            </div>
-            <div class="btn-wrapper">
-                <a href="cart.html" class="theme-btn-1 btn btn-effect-1">View Cart</a>
-                <a href="cart.html" class="theme-btn-2 btn btn-effect-2">Checkout</a>
-            </div>
-            <p>Free Shipping on All Orders Over $100!</p>
-        </div>
+
 
     </div>
 </div>

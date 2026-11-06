@@ -4,6 +4,10 @@
 @section('breadcrumb', 'Chi tiết sản phẩm')
 
 @section('content')
+    @php
+        $isExpired = $product->expiry_date?->isBefore(today()->addDay()) ?? false;
+        $canPurchase = $product->stock > 0 && $product->status === 'in_stock' && !$isExpired;
+    @endphp
     <!-- SHOP DETAILS AREA START -->
     <div class="ltn__shop-details-area pb-85">
         <div class="container">
@@ -14,14 +18,15 @@
                             <div class="col-md-6">
                                 <div class="ltn__shop-details-img-gallery">
                                     <div class="ltn__shop-details-large-img">
-
                                         @foreach ($product->images as $image)
                                             <div class="single-large-img">
+
                                                 <a href="{{ asset('storage/' . $image->image) }}"
                                                     data-rel="lightcase:myCollection">
                                                     <img src="{{ asset('storage/' . $image->image) }}"
                                                         alt="{{ $product->name }}">
                                                 </a>
+
                                             </div>
                                         @endforeach
 
@@ -29,11 +34,9 @@
                                     <div class="ltn__shop-details-small-img slick-arrow-2">
 
                                         @foreach ($product->images as $image)
-                                            <div class="single-large-img">
-
+                                            <div class="single-small-img">
                                                 <img src="{{ asset('storage/' . $image->image) }}"
                                                     alt="{{ $product->name }}">
-
                                             </div>
                                         @endforeach
 
@@ -50,36 +53,53 @@
                                     </div>
                                     <h3>{{ $product->name }}</h3>
                                     <div class="product-price">
-
-                                        <span>${{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
-
+                                        {{-- LOGIC GIÁ --}}
+                                        @if ($canPurchase)
+                                            <span>${{ number_format($product->price, 0, ',', '.') }}đ</span>
+                                            <span class="product-unit">/ {{ $product->unit_label }}</span>
+                                        @endif
                                     </div>
                                     <div class="modal-product-meta ltn__product-details-menu-1">
                                         <ul>
                                             <li>
                                                 <strong>Danh mục:</strong>
                                                 <span>
-                                                    <a href="javascript:void(0);">{{ $product->category->name }}</a>
+                                                    <a
+                                                        href="{{ route('products.byCategory', $product->category->slug) }}">{{ $product->category->name }}</a>
                                                 </span>
                                             </li>
                                         </ul>
                                     </div>
                                     <div class="ltn__product-details-menu-2">
                                         <ul>
-                                            <li>
-                                                <div class="cart-plus-minus">
-                                                    <input type="text" value="02" name="qtybutton"
-                                                        class="cart-plus-minus-box">
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="#" class="theme-btn-1 btn btn-effect-1"
-                                                    title="Thêm vào giỏ hàng" data-bs-toggle="modal"
-                                                    data-bs-target="#add_to_cart_modal">
-                                                    <i class="fas fa-shopping-cart"></i>
-                                                    <span>Thêm vào giỏ hàng</span>
-                                                </a>
-                                            </li>
+                                            {{-- LOGIC NÚT MUA --}}
+                                            @if ($canPurchase)
+                                                <li>
+                                                    <div class="cart-plus-minus">
+                                                        <div class="dec qtybutton">-</div>
+                                                        <input type="text" value="1" name="qtybutton"
+                                                            class="cart-plus-minus-box" readonly
+                                                            data-max="{{ $product->stock }}">
+                                                        <div class="inc qtybutton">+</div>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0)"
+                                                        class="theme-btn-1 btn btn-effect-1 add-to-cart-btn"
+                                                        title="Thêm vào giỏ hàng" data-id="{{ $product->id }}">
+                                                        <i class="fas fa-shopping-cart"></i>
+                                                        <span>Thêm vào giỏ hàng</span>
+                                                    </a>
+                                                </li>
+                                            @else
+                                                <li>
+                                                    <button class="btn theme-btn-1 btn-effect-1"
+                                                        style="background-color: #ccc; cursor: not-allowed; width: 100%;"
+                                                        disabled>
+                                                        <span>{{ $isExpired ? 'Sản phẩm đã hết hạn' : 'Tạm Hết Hàng' }}</span>
+                                                    </button>
+                                                </li>
+                                            @endif
                                         </ul>
                                     </div>
 
@@ -91,7 +111,8 @@
                                                         class="fab fa-facebook-f"></i></a>
                                             </li>
                                             <li><a href="javascript:void(0)" title="Twitter"><i
-                                                        class="fab fa-twitter"></i></a></li>
+                                                        class="fab fa-twitter"></i></a>
+                                            </li>
                                             <li><a href="javascript:void(0)" title="Linkedin"><i
                                                         class="fab fa-linkedin"></i></a>
                                             </li>
@@ -114,7 +135,8 @@
                     <div class="ltn__shop-details-tab-inner ltn__shop-details-tab-inner-2">
                         <div class="ltn__shop-details-tab-menu">
                             <div class="nav">
-                                <a class="active show" data-bs-toggle="tab" href="#liton_tab_details_description">Mô tả</a>
+                                <a class="active show" data-bs-toggle="tab" href="#liton_tab_details_description">Mô
+                                    tả</a>
                                 <a data-bs-toggle="tab" href="#liton_tab_details_reviews" class="">Đánh giá</a>
                             </div>
                         </div>
@@ -222,6 +244,8 @@
         </div>
     </div>
     <!-- SHOP DETAILS AREA END -->
+    @include('clients.components.includes.include-modals')
+
 
     <!-- PRODUCT SLIDER AREA START -->
     <div class="ltn__product-slider-area ltn__product-gutter pb-70">
@@ -237,44 +261,60 @@
                 <!-- ltn__product-item -->
 
                 @foreach ($relatedProducts as $product)
-                    <div class="ltn__product-item ltn__product-item-3 text-center">
-                        <div class="product-img">
-                            <a href="{{ route('product.detail', $product->slug) }}"><img src="{{ $product->image_url }}"
-                                    alt="{{ $product->name }}"></a>
-                            <div class="product-hover-action">
-                                <ul>
-                                    <li>
-                                        <a href="javascript:void(0)" title="Xem nhanh" data-bs-toggle="modal"
-                                            data-bs-target="#quick_view_modal-{{ $product->id }}">
-                                            <i class="far fa-eye"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)" title="Thêm vào giỏ hàng" data-bs-toggle="modal"
-                                            data-bs-target="#add_to_cart_modal-{{ $product->id }}">
-                                            <i class="fas fa-shopping-cart"></i>
-                                        </a>
-                                    </li>
-                                </ul>
+                    @php
+                        // Tính toán xem có bị hết hạn không
+                        $isExpired = $product->expiry_date?->isBefore(today()->addDay()) ?? false;
+                    @endphp
+                    <div class="col-lg-12">
+                        <div class="ltn__product-item ltn__product-item-3 text-center">
+                            <div class="product-img">
+
+                                <a
+                                    href="{{ route('product.detail', ['categorySlug' => $product->category->slug, 'productSlug' => $product->slug]) }}"><img
+                                        src="{{ $product->image_url }}" alt="{{ $product->name }}"></a>
+
+                                <div class="product-hover-action">
+                                    <ul>
+                                        <li>
+                                            <a href="javascript:void(0)" title="Xem nhanh" data-bs-toggle="modal"
+                                                data-bs-target="#quick_view_modal-{{ $product->id }}">
+                                                <i class="far fa-eye"></i>
+                                            </a>
+                                        </li>
+                                        {{-- chỉ hiện nút mua khi còn hàng --}}
+                                        @if ($product->stock > 0 && $product->status == 'in_stock' && !$isExpired)
+                                            <li>
+                                                <a href="javascript:void(0)" title="Thêm vào giỏ hàng"
+                                                    class="add-to-cart-btn" data-id="{{ $product->id }}">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                </a>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-                        <div class="product-info">
-                            <div class="product-ratting">
-                                <ul>
-                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                </ul>
-                            </div>
-                            <h2 class="product-title"><a
-                                    href="{{ route('product.detail', $product->slug) }}">{{ $product->name }}</a>
-                            </h2>
-                            <div class="product-price">
-                                <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                            <div class="product-info">
+                                <div class="product-ratting">
+                                    <ul>
+                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                    </ul>
+                                </div>
+                                <h2 class="product-title"><a
+                                        href="{{ route('product.detail', ['categorySlug' => $product->category->slug, 'productSlug' => $product->slug]) }}">{{ $product->name }}</a>
+                                </h2>
+                                <div class="product-price">
+                                    <span>{{ number_format($product->price, 0, ',', '.') }}đ</span>
+                                    <span class="product-unit">/ {{ $product->unit_label }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
         </div>
+        @foreach ($relatedProducts as $product)
+            @include('clients.components.includes.include-modals')
+        @endforeach
     </div>
     </div>
     <!-- PRODUCT SLIDER AREA END -->

@@ -5,8 +5,9 @@
             <div class="col-xl-4 col-sm-6 col-6">
                 <div class="ltn__product-item ltn__product-item-3 text-center">
                     <div class="product-img">
-                        <a href="{{ route('product.detail', $product->slug) }}"><img src="{{ $product->image_url }}"
-                                alt="{{ $product->name }}"></a>
+                        <a
+                            href="{{ route('product.detail', ['categorySlug' => $product->category->slug, 'productSlug' => $product->slug]) }}"><img
+                                src="{{ $product->image_url }}" alt="{{ $product->name }}"></a>
                         <div class="product-hover-action">
                             <ul>
                                 <li>
@@ -16,8 +17,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void(0)" title="Thêm vào giỏ hàng" data-bs-toggle="modal"
-                                        data-bs-target="#add_to_cart_modal-{{ $product->id }}">
+                                    <a href="javascript:void(0)" title="Thêm vào giỏ hàng" class="add-to-cart-btn"
+                                        data-id="{{ $product->id }}">
                                         <i class="fas fa-shopping-cart"></i>
                                     </a>
                                 </li>
@@ -31,9 +32,11 @@
                             </ul>
                         </div>
                         <h2 class="product-title"><a
-                                href="{{ route('product.detail', $product->slug) }}">{{ $product->name }}</a></h2>
+                                href="{{ route('product.detail', ['categorySlug' => $product->category->slug, 'productSlug' => $product->slug]) }}">{{ $product->name }}</a>
+                        </h2>
                         <div class="product-price">
-                            <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                            <span>{{ number_format($product->price, 0, ',', '.') }}đ</span>
+                            <span class="product-unit">/ {{ $product->unit_label }}</span>
                         </div>
                     </div>
                 </div>
@@ -41,3 +44,8 @@
         @endforeach
     </div>
 </div>
+
+<!-- Duyệt qua từng sản phẩm và hiển thị modal -->
+@foreach ($products as $product)
+    @include('clients.components.includes.include-modals')
+@endforeach
