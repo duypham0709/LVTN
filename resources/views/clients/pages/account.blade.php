@@ -310,86 +310,89 @@
                                                     </form>
                                                 </div>
                                             </div>
-                                        </div> --}}
+                                        </div>
 
-                                    </div>
+                                    </div> --}}
 
-                                    <div class="tab-pane fade" id="liton_tab_account">
-                                        <div class="ltn__myaccount-tab-content-inner">
-                                            <div class="ltn__form-box">
-                                                <form action="#" method="POST" id="update-account"
-                                                    enctype="multipart/form-data">
+                                        <div class="tab-pane fade" id="liton_tab_account">
+                                            <div class="ltn__myaccount-tab-content-inner">
+                                                <div class="ltn__form-box">
+                                                    <form action="#" method="POST" id="update-account"
+                                                        enctype="multipart/form-data">
 
-                                                    @method('PUT')
+                                                        @method('PUT')
 
-                                                    <div class="row mb-50">
-                                                        <div class="col-md-12 text-center mb-3">
-                                                            <div class="profile-pic-container">
-                                                                <img src="{{ $user->avatar }}" alt="Avatar"
-                                                                    id="preview-image" class="profile-pic">
-                                                                <input type="file" name="avatar" id="avatar"
-                                                                    accept="image/*" class="d-none">
+                                                        <div class="row mb-50">
+                                                            <div class="col-md-12 text-center mb-3">
+                                                                <div class="profile-pic-container">
+                                                                    <img src="{{ $user->avatar }}" alt="Avatar"
+                                                                        id="preview-image" class="profile-pic">
+                                                                    <input type="file" name="avatar" id="avatar"
+                                                                        accept="image/*" class="d-none">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label for="ltn__name">Họ và tên:</label>
+                                                                <input type="text" name="ltn__name" id="ltn__name"
+                                                                    value="{{ $user->name }}" required>
+                                                            </div>
+
+                                                            <div class="col-md-6">
+                                                                <label for="ltn__phone_number">Số điện thoại:</label>
+                                                                <input type="number" name="ltn__phone_number"
+                                                                    id="ltn__phone_number"
+                                                                    value="{{ $user->phone_number }}" required>
+                                                            </div>
+
+                                                            <div class="col-md-6">
+                                                                <label for="ltn__email">Email (không thay đổi):</label>
+                                                                <input type="text" name="ltn__email" id="ltn__email"
+                                                                    value="{{ $user->email }}" readonly>
+                                                            </div>
+
+                                                            <div class="col-md-6">
+                                                                <label for="ltn__address">Địa chỉ:</label>
+                                                                <input type="text" name="ltn__address"
+                                                                    id="ltn__address" value="{{ $address->address }}"
+                                                                    required>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-6">
-                                                            <label for="ltn__name">Họ và tên:</label>
-                                                            <input type="text" name="ltn__name" id="ltn__name"
-                                                                value="{{ $user->name }}" required>
-                                                        </div>
 
-                                                        <div class="col-md-6">
-                                                            <label for="ltn__phone_number">Số điện thoại:</label>
-                                                            <input type="number" name="ltn__phone_number"
-                                                                id="ltn__phone_number" value="{{ $user->phone_number }}"
-                                                                required>
+                                                        <div class="btn-wrapper">
+                                                            <button type="submit"
+                                                                class="btn theme-btn-1 btn-effect-1 text-uppercase">Cập
+                                                                nhật</button>
                                                         </div>
-
-                                                        <div class="col-md-6">
-                                                            <label for="ltn__email">Email (không thay đổi):</label>
-                                                            <input type="text" name="ltn__email" id="ltn__email"
-                                                                value="{{ $user->email }}" readonly>
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <label for="ltn__address">Địa chỉ:</label>
-                                                            <input type="text" name="ltn__address" id="ltn__address"
-                                                                value="{{ $user->address }}" required>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="btn-wrapper">
-                                                        <button type="submit"
-                                                            class="btn theme-btn-1 btn-effect-1 text-uppercase">Cập
-                                                            nhật</button>
-                                                    </div>
-                                                </form>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="tab-pane fade" id="liton_tab_password">
-                                        <div class="ltn__myaccount-tab-content-inner">
-                                            <div class="ltn__form-box">
-                                                <form action="#" method="POST" id="change-password-form">
-                                                    <fieldset>
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <label>Mật khẩu hiện tại:</label>
-                                                                <input type="password" name="current_password" required>
-                                                                <label>Mật khẩu mới:</label>
-                                                                <input type="password" name="new_password" required>
-                                                                <label>Xác nhận mật khẩu mới:</label>
-                                                                <input type="password" name="confirm_new_password"
-                                                                    autocomplete="new-password" required>
+                                        <div class="tab-pane fade" id="liton_tab_password">
+                                            <div class="ltn__myaccount-tab-content-inner">
+                                                <div class="ltn__form-box">
+                                                    <form action="#" method="POST" id="change-password-form">
+                                                        <fieldset>
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <label>Mật khẩu hiện tại:</label>
+                                                                    <input type="password" name="current_password"
+                                                                        required>
+                                                                    <label>Mật khẩu mới:</label>
+                                                                    <input type="password" name="new_password" required>
+                                                                    <label>Xác nhận mật khẩu mới:</label>
+                                                                    <input type="password" name="confirm_new_password"
+                                                                        autocomplete="new-password" required>
+                                                                </div>
                                                             </div>
+                                                        </fieldset>
+                                                        <div class="btn-wrapper">
+                                                            <button type="submit"
+                                                                class="btn theme-btn-1 btn-effect-1 text-uppercase">Thay
+                                                                đổi</button>
                                                         </div>
-                                                    </fieldset>
-                                                    <div class="btn-wrapper">
-                                                        <button type="submit"
-                                                            class="btn theme-btn-1 btn-effect-1 text-uppercase">Thay
-                                                            đổi</button>
-                                                    </div>
-                                                </form>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -397,11 +400,10 @@
                             </div>
                         </div>
                     </div>
+                    <!-- PRODUCT TAB AREA END -->
                 </div>
-                <!-- PRODUCT TAB AREA END -->
             </div>
         </div>
-    </div>
     </div>
 @endsection
 

@@ -9,9 +9,11 @@
                     <button class="ltn__utilize-close">×</button>
                 </div>
                 <div class="ltn__utilize-menu-search-form">
-                    <form action="#">
-                        <input type="text" placeholder="Search...">
-                        <button><i class="fas fa-search"></i></button>
+                    <form id="#" method="GET" action="{{ route('search') }}">
+                        <input type="text" name="keyword" value="" placeholder="Tìm kiếm..." />
+                        <button type="submit">
+                            <span><i class="icon-search"></i></span>
+                        </button>
                     </form>
                 </div>
                 <div class="ltn__utilize-menu">

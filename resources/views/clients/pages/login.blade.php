@@ -34,10 +34,20 @@
                                 <button class="theme-btn-1 btn btn-block" type="submit">Đăng nhập</button>
                             </div>
 
-                            <div class="go-to-btn mt-20">
+                            {{-- <div class="go-to-btn mt-20">
                                 <a href="#"><small>BẠN QUÊN MẬT KHẨU?</small></a>
-                            </div>
+                            </div> --}}
                         </form>
+                        <div class="btn-wrapper mt-20">
+                            <a href="{{ route('google.redirect') }}" class="theme-btn-2 btn btn-block">
+                                Đăng nhập bằng Google
+                            </a>
+                        </div>
+                        {{-- <div class="btn-wrapper mt-20">
+                            <a href="{{ route('facebook.redirect') }}" class="theme-btn-2 btn btn-block">
+                                Đăng nhập bằng Facebook
+                            </a>
+                        </div> --}}
                     </div>
                 </div>
                 <div class="col-lg-6">

@@ -24,9 +24,8 @@
                                             $cartTotal += $subtotal;
 
                                             // Kiểm tra lỗi cho từng sản phẩm
-                                            // Nếu người dùng đã đăng nhập, lấy sản phẩm từ quan hệ; nếu không, tìm sản phẩm theo ID
-                                            $product = \App\Models\Product::find($item['product_id']);
-                                            $isOutOfStock = false;
+                                            $product = $item['product'];
+                                            $isOutOfStock = !$product || $product->status === 'out_of_stock';
                                             $isNotEnoughStock = false;
                                             // Kiểm tra xem sản phẩm có tồn tại và có ngày hết hạn hay không trước khi gọi phương thức isBefore()
                                             $isExpired = $product?->expiry_date?->isBefore(today()->addDay()) ?? false;
@@ -34,8 +33,7 @@
                                             if ($product) {
                                                 if ($isExpired) {
                                                     $hasError = true;
-                                                } elseif ($product->status == 'out_of_stock') {
-                                                    $isOutOfStock = true;
+                                                } elseif ($isOutOfStock) {
                                                     $hasError = true;
                                                 } elseif ($product->stock < $item['quantity']) {
                                                     $isNotEnoughStock = true;
@@ -43,7 +41,6 @@
                                                 }
                                             } else {
                                                 // Sản phẩm bị xóa hoàn toàn khỏi DB
-                                                $isOutOfStock = true;
                                                 $hasError = true;
                                             }
 
@@ -54,8 +51,8 @@
                                             style="{{ $isUnavailable ? 'background-color: #fff0f0;' : '' }}">
 
                                             <td class="cart-product-remove">
-                                                <button class="remove-from-cart"
-                                                    data-id="{{ $item['product_id'] }}">x</button>
+                                                <button type="button" class="remove-from-cart"
+                                                    data-id="{{ $item['product_id'] }}">Xóa</button>
                                             </td>
 
                                             <td class="cart-product-image">
@@ -146,10 +143,11 @@
                                     @if ($hasError)
                                         <a class="theme-btn-1 btn btn-effect-1" disabled
                                             style="background-color: #ccc; cursor: not-allowed; border-color: #ccc;">
-                                            Vui lòng xóa sản phẩm lỗi để thanh toán
+                                            Vui lòng xóa sản phẩm lỗi để thanh toán.
                                         </a>
                                     @else
-                                        <a href="" class="theme-btn-1 btn btn-effect-1">Tiến hành
+                                        <a href="{{ auth()->check() ? 'checkout' : route('login') }}"
+                                            class="theme-btn-1 btn btn-effect-1">Tiến hành
                                             thanh toán</a>
                                     @endif
                                 </div>

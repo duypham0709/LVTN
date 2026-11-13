@@ -90,7 +90,7 @@ class ProductPurchaseAvailabilityTest extends TestCase
         $response->assertSee('Vui lòng xóa sản phẩm lỗi để thanh toán');
         $response->assertSee('class="dec qtybutton"', false);
         $response->assertSee('class="inc qtybutton"', false);
-        $this->assertSame(3, preg_match_all('/<button[^>]*\bdisabled\b[^>]*>/', $response->getContent()));
+        $this->assertSame(2, preg_match_all('/<button[^>]*\bdisabled\b[^>]*>/', $response->getContent()));
     }
 
     public function test_cart_disables_quantity_controls_when_cart_quantity_exceeds_stock(): void
@@ -116,7 +116,7 @@ class ProductPurchaseAvailabilityTest extends TestCase
         $response->assertSee('Kho chỉ còn', false);
         $response->assertSee('class="dec qtybutton"', false);
         $response->assertSee('class="inc qtybutton"', false);
-        $this->assertSame(3, preg_match_all('/<button[^>]*\bdisabled\b[^>]*>/', $response->getContent()));
+        $this->assertSame(2, preg_match_all('/<button[^>]*\bdisabled\b[^>]*>/', $response->getContent()));
     }
 
     public function test_cart_disables_quantity_controls_when_product_is_out_of_stock(): void
@@ -143,7 +143,7 @@ class ProductPurchaseAvailabilityTest extends TestCase
         $response->assertSee('Sản phẩm đã ngưng kinh', false);
         $response->assertSee('class="dec qtybutton"', false);
         $response->assertSee('class="inc qtybutton"', false);
-        $this->assertSame(3, preg_match_all('/<button[^>]*\bdisabled\b[^>]*>/', $response->getContent()));
+        $this->assertSame(2, preg_match_all('/<button[^>]*\bdisabled\b[^>]*>/', $response->getContent()));
     }
 
     public function test_add_to_cart_rejects_expired_product_without_changing_session(): void

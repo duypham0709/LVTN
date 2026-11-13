@@ -12239,6 +12239,19 @@ input.cart-plus-minus-box {
     color: var(--ltn__secondary-color);
 }
 
+.remove-from-cart {
+    color: #003366;
+    text-decoration: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.remove-from-cart:hover {
+    text-decoration: underline;
+}
+
 .cart-product-subtotal {
     font-weight: 700;
 }

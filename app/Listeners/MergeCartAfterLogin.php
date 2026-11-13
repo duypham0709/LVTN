@@ -2,46 +2,41 @@
 
 namespace App\Listeners;
 
-use App\Models\CartItem;
+use App\Services\CartService;
 use Illuminate\Auth\Events\Login;
-use Illuminate\Support\Facades\Session;
 
 class MergeCartAfterLogin
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(private readonly CartService $cartService) {}
 
-    /**
-     * Handle the event.
-     */
     public function handle(Login $event): void
     {
-        $user = $event->user;
-        $seessionCart = Session::get('cart', []);
+        $this->cartService->mergeGuestCartIntoUser($event->user);
+    }
 
-        if (! empty($seessionCart)) {
-            foreach ($seessionCart as $productId => $cartItem) {
-                $existingCartItem = CartItem::where('user_id', $user->id)
-                    ->where('product_id', $productId)->first();
+    /*
+    Previous session-to-cart_items merge implementation:
+    $user = $event->user;
+    $seessionCart = Session::get('cart', []);
 
-                if ($existingCartItem) {
-                    $existingCartItem->quantity += $cartItem['quantity'];
-                    $existingCartItem->save();
-                } else {
-                    CartItem::create([
-                        'user_id' => $user->id,
-                        'product_id' => $productId,
-                        'quantity' => $cartItem['quantity'],
-                    ]);
-                }
+    if (! empty($seessionCart)) {
+        foreach ($seessionCart as $productId => $cartItem) {
+            $existingCartItem = CartItem::where('user_id', $user->id)
+                ->where('product_id', $productId)->first();
+
+            if ($existingCartItem) {
+                $existingCartItem->quantity += $cartItem['quantity'];
+                $existingCartItem->save();
+            } else {
+                CartItem::create([
+                    'user_id' => $user->id,
+                    'product_id' => $productId,
+                    'quantity' => $cartItem['quantity'],
+                ]);
             }
         }
-
-        Session::forget('cart');
     }
+
+    Session::forget('cart');
+    */
 }

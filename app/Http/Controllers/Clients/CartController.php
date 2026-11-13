@@ -3,91 +3,46 @@
 namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
-use App\Models\CartItem;
 use App\Models\Product;
+use App\Services\CartService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class CartController extends Controller
 {
-    public function addToCart(Request $request)
-    {
-        $request->merge(['quantity' => (int) $request->quantity]);
+    public function __construct(private readonly CartService $cartService) {}
 
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
+    public function addToCart(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'quantity' => ['required', 'integer', 'min:1'],
         ]);
 
-        $product = Product::findOrFail($request->product_id);
-        $isExpired = $product->expiry_date?->isBefore(today()->addDay()) ?? false;
-        if ($product->stock < 1 || $product->status !== 'in_stock' || $isExpired) {
+        $product = Product::findOrFail($validated['product_id']);
+        // thêm số lượng mới vào số lượng hiện tại của sản phẩm trong giỏ hàng
+        $newQuantity = $this->cartService->quantityFor($product->getKey()) + $validated['quantity'];
+
+        if (! $this->isAvailableForPurchase($product)) {
             return response()->json(['message' => 'Sản phẩm hiện không thể mua.'], 400);
         }
 
-        // Nếu đã đăng nhập sẽ lưu db
-        if (Auth::check()) {
-            $cartItem = CartItem::where('user_id', Auth::id())
-                ->where('product_id', $request->product_id)
-                ->first();
-
-            $newQuantity = ($cartItem?->quantity ?? 0) + $request->quantity;
-            if ($newQuantity > $product->stock) {
-                return response()->json(['message' => 'Số lượng vượt quá tồn kho.'], 400);
-            }
-
-            if ($cartItem) {
-                $cartItem->quantity = $newQuantity;
-                $cartItem->save();
-            } else {
-                CartItem::create([
-                    'user_id' => Auth::id(),
-                    'product_id' => $request->product_id,
-                    'quantity' => $newQuantity,
-                ]);
-            }
-
-            $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
-        } else {
-            //  nếu chưa đăng nhập thì lưu sp ở session
-            $cart = session()->get('cart', []);
-            $newQuantity = ($cart[$request->product_id]['quantity'] ?? 0) + $request->quantity;
-            if ($newQuantity > $product->stock) {
-                return response()->json(['message' => 'Số lượng vượt quá tồn kho.'], 400);
-            }
-
-            if (isset($cart[$request->product_id])) {
-                $cart[$request->product_id]['quantity'] = $newQuantity;
-            } else {
-                $cart[$request->product_id] = [
-                    'product_id' => $request->product_id,
-                    'name' => $product->name,
-                    'price' => $product->price,
-                    'quantity' => $newQuantity,
-                    'stock' => $product->stock,
-                    'image' => $product->images->first()->image ?? 'uploads/products/default-product.png',
-                ];
-            }
-
-            session()->put('cart', $cart);
-            $cartCount = array_sum(array_column($cart, 'quantity'));
+        if ($newQuantity > $product->stock) {
+            return response()->json(['message' => 'Số lượng vượt quá tồn kho.'], 400);
         }
+
+        $this->cartService->put($product, $newQuantity);
 
         return response()->json([
             'message' => true,
-            'cart_count' => $cartCount,
+            'cart_count' => $this->cartService->count(),
         ]);
     }
 
-    public function loadMiniCart()
+    public function loadMiniCart(): JsonResponse
     {
-        $cartItems = [];
-
-        if (auth()->check()) {
-            $cartItems = CartItem::with('product')->where('user_id', auth()->id())->get();
-        } else {
-            $cartItems = session('cart', []);
-        }
+        $cartItems = $this->cartService->items();
 
         return response()->json([
             'status' => true,
@@ -95,157 +50,84 @@ class CartController extends Controller
         ]);
     }
 
-    public function removeFromMiniCart(Request $request)
+    public function removeFromMiniCart(Request $request): JsonResponse
     {
-        $request->validate(['product_id' => 'required']);
+        $validated = $request->validate([
+            'product_id' => ['required', 'integer', 'min:1'],
+        ]);
 
-        if (Auth::check()) {
-
-            CartItem::where('user_id', Auth::id())->where('product_id', $request->product_id)->delete();
-
-            $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
-        } else {
-
-            // Chưa login
-            $cart = session()->get('cart', []);
-            unset($cart[$request->product_id]);
-            session()->put('cart', $cart);
-
-            // Tính tổng mảng
-            $cartCount = array_sum(array_column($cart, 'quantity'));
-        }
+        $this->cartService->remove((int) $validated['product_id']);
 
         return response()->json([
             'status' => true,
-            'cart_count' => $cartCount,
+            'cart_count' => $this->cartService->count(),
         ]);
     }
 
-    // trang giỏ hàng lớn
-    public function viewCart()
+    public function viewCart(): View
     {
-        if (Auth::check()) {
-            // Neu nguoi dung dang nhap thi minh se lay gio hang tu database
-            $cartItems = CartItem::where('user_id', Auth::id())->with('product')->get()->map(function ($item) {
-                return [
-                    'product_id' => $item->product->id,
-                    'name' => $item->product->name,
-                    'price' => $item->product->price,
-                    'quantity' => $item->quantity,
-                    'stock' => $item->product->stock,
-                    'image' => $item->product->images->first()->image ?? 'uploads/products/default-product.png',
-                ];
-            })->toArray();
-        } else {
-            // Nguoc lai thi lay gio hang tu session
-            $cartItems = session()->get('cart', []);
-        }
+        $cartItems = $this->cartService->items();
 
         return view('clients.pages.cart', compact('cartItems'));
     }
 
-    // Xử lý cập nhật số lượng sản phẩm trong giỏ hàng
-    public function updateCart(Request $request)
+    public function updateCart(Request $request): JsonResponse
     {
-        $productId = $request->product_id;
-        $quantity = $request->quantity;
+        $validated = $request->validate([
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'quantity' => ['required', 'integer', 'min:1'],
+        ]);
 
-        // 1. Cập nhật dữ liệu vào DB/Session
-        if (Auth::check()) {
-            $cartItem = CartItem::where('user_id', Auth::id())->where('product_id', $productId)->first();
-            if (! $cartItem) {
-                return response()->json(['error' => 'Sản phẩm không tồn tại'], 404);
-            }
+        $product = Product::findOrFail($validated['product_id']);
+        $currentQuantity = $this->cartService->quantityFor($product->getKey());
 
-            $product = Product::find($productId);
-            if ($quantity > $product->stock) {
-                return response()->json(['error' => 'Quá số lượng tồn kho'], 400);
-            }
-
-            $cartItem->quantity = $quantity;
-            $cartItem->save();
-        } else {
-            $cart = session()->get('cart', []);
-            if (! isset($cart[$productId])) {
-                return response()->json(['error' => 'Sản phẩm không tồn tại'], 404);
-            }
-
-            $product = Product::find($productId);
-            if ($quantity > $product->stock) {
-                return response()->json(['error' => 'Quá số lượng tồn kho'], 400);
-            }
-
-            $cart[$productId]['quantity'] = $quantity;
-            session()->put('cart', $cart);
+        // kiểm tra số lượng hiện tại của sản phẩm trong giỏ hàng, nếu bằng 0 thì trả về lỗi
+        if ($currentQuantity === 0) {
+            return response()->json(['error' => 'Sản phẩm không tồn tại'], 404);
         }
 
-        // 2. TÍNH TOÁN LẠI MỌI THỨ (Server tính, JS không cần tính)
-        $subtotal = $quantity * $product->price; // Thành tiền của món đó
-        $total = $this->calculateCartTotal();    // Tổng tiền hàng
-        //$grandTotal = $total + 15000;            // Tổng cộng (kèm ship)
-
-        // Cập nhật số lượng icon giỏ hàng
-        if (Auth::check()) {
-            $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
-        } else {
-            $cart = session()->get('cart', []);
-            // trả về tổng số lượng sản phẩm trong giỏ hàng
-            $cartCount = array_sum(array_column($cart, 'quantity'));
+        // kiểm tra xem sản phẩm có thể mua được hay không, nếu không thì trả về lỗi
+        if (! $this->isAvailableForPurchase($product) || $currentQuantity > $product->stock) {
+            return response()->json(['error' => 'Sản phẩm hiện không thể thay đổi số lượng.'], 400);
         }
+
+        // kiểm tra xem số lượng mới có vượt quá tồn kho hay không, nếu có thì trả về lỗi
+        if ($validated['quantity'] > $product->stock) {
+            return response()->json(['error' => 'Quá số lượng tồn kho'], 400);
+        }
+
+        $this->cartService->put($product, $validated['quantity']);
+        $subtotal = $validated['quantity'] * $product->price;
 
         return response()->json([
             'status' => true,
-            'quantity' => $quantity,
-            // Trả về chuỗi đã format sẵn
+            'quantity' => $validated['quantity'],
             'subtotal' => number_format($subtotal, 0, ',', '.'),
-            'total' => number_format($total, 0, ',', '.'),
-            //'grandTotal' => number_format($grandTotal, 0, ',', '.'),
-            'cart_count' => $cartCount, // Trả về số lượng để update icon
+            'total' => number_format($this->cartService->total(), 0, ',', '.'),
+            'cart_count' => $this->cartService->count(),
         ]);
     }
 
-    public function calculateCartTotal() // Hàm tính tổng tiền hàng
+    public function removeCartItem(Request $request): JsonResponse
     {
-        if (Auth::check()) {
-            return CartItem::where('user_id', Auth::id())->with('product')->get()->sum(fn($item) => $item->quantity * $item->product->price);
-        } else {
-            $cart = session()->get('cart', []);
+        $validated = $request->validate([
+            'product_id' => ['required', 'integer', 'min:1'],
+        ]);
 
-            return collect($cart)->sum(fn($item) => $item['quantity'] * $item['price']);
-        }
-    }
-
-    // Xử lý xóa sản phẩm trong giỏ hàng
-    public function removeCartItem(Request $request)
-    {
-        $productId = $request->product_id;
-
-        if (Auth::check()) {
-            CartItem::where('user_id', Auth::id())->where('product_id', $productId)->delete();
-        } else {
-            $cart = session()->get('cart', []);
-            unset($cart[$productId]);
-            session()->put('cart', $cart);
-        }
-
-        // Tính toán lại
-        $total = $this->calculateCartTotal();
-        //$grandTotal = $total + 15000;
-
-        // Cập nhật số lượng icon giỏ hàng
-        if (Auth::check()) {
-            $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
-        } else {
-            $cart = session()->get('cart', []);
-            // trả về tổng số lượng sản phẩm trong giỏ hàng
-            $cartCount = array_sum(array_column($cart, 'quantity'));
-        }
+        $this->cartService->remove((int) $validated['product_id']);
 
         return response()->json([
             'status' => true,
-            'total' => number_format($total, 0, ',', '.'),
-            //'grandTotal' => number_format($grandTotal, 0, ',', '.'),
-            'cart_count' => $cartCount, // Trả về để JS update icon
+            'total' => number_format($this->cartService->total(), 0, ',', '.'),
+            'cart_count' => $this->cartService->count(),
         ]);
+    }
+
+    // kiểm tra xem sản phẩm có thể mua được hay không, dựa trên các điều kiện như tồn kho, trạng thái và ngày hết hạn
+    private function isAvailableForPurchase(Product $product): bool
+    {
+        return $product->stock > 0
+            && $product->status === 'in_stock'
+            && ! ($product->expiry_date?->isBefore(today()->addDay()) ?? false);
     }
 }

@@ -35,4 +35,22 @@ return [
         ],
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
+
+    // 'facebook' => [
+    //     'client_id' => env('FB_CLIENT_ID'),
+    //     'client_secret' => env('FB_CLIENT_SECRET'),
+    //     'redirect' => env('FB_CALLBACK_REDIRECTS'),
+    // ],
+
+    'sepay' => [
+        'merchant_id' => env('SEPAY_MERCHANT_ID'),
+        'secret_key' => env('SEPAY_SECRET_KEY'),
+        // 'environment' => env('SEPAY_ENVIRONMENT', 'sandbox'),
+    ],
+
 ];

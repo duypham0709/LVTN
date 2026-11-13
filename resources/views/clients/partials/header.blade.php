@@ -90,7 +90,7 @@
                             </div>
                         </div>
                         <div class="header-search-1-form">
-                            <form id="#" method="GET" action="#">
+                            <form id="#" method="GET" action="{{ route('search') }}">
                                 <input type="text" name="keyword" value="" placeholder="Tìm kiếm..." />
                                 <button type="submit">
                                     <span><i class="icon-search"></i></span>
@@ -124,13 +124,14 @@
                     <div class="mini-cart-icon">
                         <a href="#ltn__utilize-cart-menu" class="ltn__utilize-toggle">
                             <i class="icon-shopping-cart"></i>
-                            <sup id="cart_count">
-                                @auth
-                                    {{ \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') }}
-                                @else
-                                    {{ session('cart') ? array_sum(array_column(session('cart'), 'quantity')) : 0 }}
-                                @endauth
-                            </sup>
+                            {{-- Legacy count used CartItem and session('cart'):
+                            @auth
+                                {{ \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') }}
+                            @else
+                                {{ session('cart') ? array_sum(array_column(session('cart'), 'quantity')) : 0 }}
+                            @endauth
+                            --}}
+                            <sup id="cart_count">{{ $cartCount ?? 0 }}</sup>
                         </a>
                     </div>
                     <!-- mini-cart -->
